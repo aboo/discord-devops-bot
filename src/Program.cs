@@ -78,7 +78,7 @@ namespace DiscordPingPongBot
 
                 // check if the thread exists and create if it doesn't
                 
-                var thread = await GetThreadByNameAsync(channel, threadName);
+                var thread = await GetThreadByPullRequestIdAsync(channel, pullRequestId);
                 if(thread == null){
                     thread = await channel.CreateThreadAsync(
                         name: threadName,
@@ -181,17 +181,6 @@ namespace DiscordPingPongBot
             return path[path.Length - 1];
         }
 
-        // // returns the work item id from a pull request title
-        // // sample title: "#WI-1 Add new feature"
-        // // work item id is WI-1
-        // // if the title does not start with a number, returns empty
-        // private static string GetWorkItemId(string title)
-        // {
-        //     var titleParts = title.Split(' ');
-        //     var firstPart = titleParts[0];
-        //     return firstPart.StartsWith("#") ? firstPart[1..] : "";
-        // }
-
         // detects if a socket message is a from a github bot in CI channel
         // by checking if the author is a webhook
         // and if the webhook name is github - case insensitive
@@ -239,13 +228,14 @@ namespace DiscordPingPongBot
             return $"[PR-{pullRequestId}] {pullRequestTitle}";
         }
 
-        // check if a discord thread name exists in a channel
+        // check if discord pull request thread exists in a channel
+        // use the pull request id to check
         // return the thread if it exists
         // return null if it does not exist
-        private static async Task<IThreadChannel?> GetThreadByNameAsync(ITextChannel channel, string threadName)
+        private static async Task<IThreadChannel?> GetThreadByPullRequestIdAsync(ITextChannel channel, string pullRequestId)
         {
             var threads = await channel.GetActiveThreadsAsync();
-            var thread = threads.FirstOrDefault(t => t.Name == threadName);
+            var thread = threads.FirstOrDefault(t => t.Name.StartsWith($"[PR-{pullRequestId}]"));
             return thread;
         }
 
