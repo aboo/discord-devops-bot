@@ -1,10 +1,13 @@
-﻿using Discord;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Discord;
 using Discord.WebSocket;
 
 namespace DiscordPingPongBot
 {
     class Program
     {
+        private const ulong ciChannelId = 1160036025901535343;
         private const ulong actionChannelId = 1160021059534331996;
         private const ulong requestChannelId = 1160017237680337049;
         private const string TOKEN = "MTE1OTY5OTQyMTYyNjM4NDQzNg.Gf5mbd.83m7CPrE20JamjyYm2Vkxp7VSynYSaFyOlA-VE";
@@ -54,6 +57,34 @@ namespace DiscordPingPongBot
 
             if (message.Content.ToLower() == "ping")
             {
+                Console.WriteLine("------");
+                var serilizerOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    ReferenceHandler = ReferenceHandler.Preserve
+                };
+                var serilizedMessage = JsonSerializer.Serialize(new {
+                    message.Content,
+                    channelId = message.Channel.Id,
+                    channelName = message.Channel.Name,
+                    author = new {
+                        message.Author.Id,
+                        message.Author.Username,
+                        message.Author.Discriminator,
+                        message.Author.IsBot,
+                        message.Author.IsWebhook
+                    },
+                    message.CleanContent,
+                    message.CreatedAt,
+                    message.Flags,
+                    message.Tags
+                    
+
+
+                }, options: serilizerOptions);
+                Console.WriteLine(serilizedMessage);
+                Console.WriteLine("------");
+
                 var cb = new ComponentBuilder()
                     .WithButton("Click me!", "unique-id", ButtonStyle.Primary);
                 Console.WriteLine(message.Channel.Id);
@@ -70,6 +101,7 @@ namespace DiscordPingPongBot
                     );
 
                     await newThread.SendMessageAsync("pong", components: cb.Build());
+                    await newThread.SendMessageAsync($"Also this is the full structure:\n\n```json\n{serilizedMessage}\n```");
                 }else{
                     await message.Channel.SendMessageAsync("I cannot ping pong here");
                 }
