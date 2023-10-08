@@ -4,6 +4,10 @@ on:
     branches:
       - feature/pr-management
 
+env:
+    DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+    DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
 jobs:
     versioning:
         name: Versioning
@@ -30,7 +34,7 @@ jobs:
           - name: Check out repo
             uses: actions/checkout@v2
           - name: Login to DockerHub
-            uses: docker/login-action@v1 
+            uses: docker/login-action@v3
             with:
                 username: ${{ env.DOCKER_HUB_USERNAME }}
                 password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
