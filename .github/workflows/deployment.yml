@@ -41,4 +41,4 @@ jobs:
                 file: ./Dockerfile
                 push: true
                 platforms: linux/amd64
-                tags: ${{ env.DOCKER_HUB_USERNAME }}/discord-bot:${{ needs.versioning.outputs.version }}
+                tags: ${{ env.DOCKER_HUB_USERNAME }}/discord-devops-bot:${{ needs.versioning.outputs.version }}
