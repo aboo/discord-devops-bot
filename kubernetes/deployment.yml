@@ -22,3 +22,19 @@ spec:
       - name: discord-devops-bot
         image: aboo/discord-devops-bot:latest
         imagePullPolicy: Always
+        env:
+        - name: Settings__TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: discord-devops-bot
+              key: TOKEN
+        - name: Settings__CI_CHANNEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: discord-devops-bot
+              key: CI_CHANNEL_ID
+        - name: Settings__IMPLEMENTATION_CHANNEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: discord-devops-bot
+              key: IMPLEMENTATION_CHANNEL_ID
