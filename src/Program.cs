@@ -2,22 +2,38 @@
 using System.Text.Json.Serialization;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 
 namespace DiscordPingPongBot
 {
+    sealed class Settings
+    {
+        public string? TOKEN { get; set; }
+        public ulong CI_CHANNEL_ID { get; set; }
+        public ulong IMPLEMENTATION_CHANNEL_ID { get; set; }
+    } 
+
     class Program
     {
-        private const ulong ciChannelId = 1160036025901535343;
-        private const ulong implementationChannelId = 1160042468239233114;
         private const ulong actionChannelId = 1160021059534331996;
         private const ulong requestChannelId = 1160017237680337049;
-        private const string TOKEN = "MTE1OTY5OTQyMTYyNjM4NDQzNg.Gf5mbd.83m7CPrE20JamjyYm2Vkxp7VSynYSaFyOlA-VE";
         private DiscordSocketClient? _client;
+		private static IConfigurationRoot? _config;
+        private static Settings _settings => _config?.GetRequiredSection("Settings").Get<Settings>() ?? throw new System.Exception("Settings not found");
 
-        static void Main(string[] args)
+		static void Main(string[] args)
         {
+            var builder = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                        .AddEnvironmentVariables();
+                        
+            _config = builder.Build();
+
+            Console.WriteLine(_settings.CI_CHANNEL_ID);
             new Program().RunBotAsync().GetAwaiter().GetResult();
         }
+
+        
 
         public async Task RunBotAsync()
         {
@@ -31,7 +47,7 @@ namespace DiscordPingPongBot
             _client.MessageReceived += MessageReceivedAsync;
 
             await RegisterCommandsAsync();
-            await _client.LoginAsync(TokenType.Bot, TOKEN);
+            await _client.LoginAsync(TokenType.Bot, _settings.TOKEN);
             await _client.StartAsync();
 
             await Task.Delay(-1); // Keep the app running
@@ -73,7 +89,7 @@ namespace DiscordPingPongBot
                 var threadName = FormThreadName(pullRequestId, title);
 
                 // get the implementation channel 
-                var channel = _client.GetChannel(implementationChannelId) as ITextChannel;
+                var channel = _client.GetChannel(_settings.IMPLEMENTATION_CHANNEL_ID) as ITextChannel;
                 if(channel == null) return;
 
                 // check if the thread exists and create if it doesn't
@@ -191,7 +207,7 @@ namespace DiscordPingPongBot
             var isWebhook = message.Author.IsWebhook;
             var isGithub = message.Author.Username.ToLower() == "github";
             var isBot = message.Author.IsBot;
-            var isCIChannel = message.Channel.Id == ciChannelId;
+            var isCIChannel = message.Channel.Id == _settings.CI_CHANNEL_ID;
             return isWebhook && isGithub && isBot && isCIChannel;
         }
 
