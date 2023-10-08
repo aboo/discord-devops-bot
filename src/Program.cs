@@ -139,7 +139,7 @@ namespace DiscordPingPongBot
                     await newThread.SendMessageAsync("pong", components: cb.Build());
                     await newThread.SendMessageAsync($"Also this is the full structure:\n\n```json\n{serializedMessage}\n```");
                 }else{
-                    await message.Channel.SendMessageAsync("I cannot ping pong here");
+                    await message.Channel.SendMessageAsync($"I cannot ping pong in {message.Channel.Id}");
                 }
             }
         }
