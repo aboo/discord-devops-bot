@@ -79,6 +79,9 @@ namespace DiscordPingPongBot
                 // get pull request data from github bot message
                 var (url, title) = GetPullRequestDataFromGithubBotMessage(message);
 
+                // return if it's not a pull request url
+                if (!IsGithubPullRequestUrl(url)) return;
+
                 // // extract work item id from pull request title
                 // var workItemId = GetWorkItemId(title);
 
