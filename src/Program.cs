@@ -96,8 +96,8 @@ namespace DiscordPingPongBot
                 if(channel == null) return;
 
                 // check if the thread exists and create if it doesn't
-                
-                var thread = await GetThreadByPullRequestIdAsync(channel, pullRequestId);
+                var thread = await GetThreadByNameAsync(channel, threadName);
+
                 if(thread == null){
                     thread = await channel.CreateThreadAsync(
                         name: threadName,
@@ -247,18 +247,14 @@ namespace DiscordPingPongBot
             return $"[PR-{pullRequestId}] {pullRequestTitle}";
         }
 
-        // check if discord pull request thread exists in a channel
-        // use the pull request id to check
-        // return the thread if it exists
-        // return null if it does not exist
-        private static async Task<IThreadChannel?> GetThreadByPullRequestIdAsync(ITextChannel channel, string pullRequestId)
+        // return discord thread using the expected thread name
+        // return null if the thread does not exist
+        private static async Task<IThreadChannel?> GetThreadByNameAsync(ITextChannel channel, string threadName)
         {
             var threads = await channel.GetActiveThreadsAsync();
-            var thread = threads.FirstOrDefault(t => t.Name.StartsWith($"[PR-{pullRequestId}]"));
+            var thread = threads.FirstOrDefault(t => t.Name == threadName);
             return thread;
         }
-
-
     }
 
     static class SocketMessageExtensions
