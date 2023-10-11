@@ -104,7 +104,7 @@ class Program
     // form the thread name
     var threadName = FormThreadName(pullRequestId, title);
 
-    // get the implementation channel 
+    // get the implementation channel
     if (_client.GetChannel(_settings.IMPLEMENTATION_CHANNEL_ID) is not ITextChannel channel)
     {
       return;
