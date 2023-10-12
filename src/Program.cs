@@ -6,7 +6,7 @@ using Discord.WebSocket;
 
 using Microsoft.Extensions.Configuration;
 
-namespace DiscordPingPongBot;
+namespace DiscordDevOpsBot;
 
 sealed class Settings
 {
