@@ -4,16 +4,10 @@ using System.Text.Json.Serialization;
 using Discord;
 using Discord.WebSocket;
 
-using Microsoft.Extensions.Configuration;
+using DiscordDevOpsBot.Models;
+using DiscordDevOpsBot.Services;
 
 namespace DiscordDevOpsBot;
-
-sealed class Settings
-{
-  public string? TOKEN { get; set; }
-  public ulong CI_CHANNEL_ID { get; set; }
-  public ulong IMPLEMENTATION_CHANNEL_ID { get; set; }
-}
 
 class Program
 {
@@ -25,14 +19,21 @@ class Program
 
   static void Main()
   {
-    var builder = new ConfigurationBuilder()
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddEnvironmentVariables();
+    var configBuilder = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
-    _config = builder.Build();
+    _config = configBuilder.Build();
 
-    Console.WriteLine(_settings.CI_CHANNEL_ID);
-    new Program().RunBotAsync().GetAwaiter().GetResult();
+    var builder = Host.CreateApplicationBuilder();
+    builder.Services.AddHostedService<Bot>();
+    builder.Services.AddSingleton(_settings);
+
+    var host = builder.Build();
+    host.Run();
+
+    // Console.WriteLine(_settings.CI_CHANNEL_ID);
+    // new Program().RunBotAsync().GetAwaiter().GetResult();
   }
 
   public async Task RunBotAsync()
