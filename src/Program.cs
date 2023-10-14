@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 using Discord;
 using Discord.WebSocket;
 
+using DiscordDevOpsBot.Features.PingPonger;
+using DiscordDevOpsBot.Interfaces;
 using DiscordDevOpsBot.Models;
 using DiscordDevOpsBot.Services;
 
@@ -26,6 +28,7 @@ class Program
     _config = configBuilder.Build();
 
     var builder = Host.CreateApplicationBuilder();
+    builder.Services.AddTransient<PingPonger>();
     builder.Services.AddHostedService<Bot>();
     builder.Services.AddSingleton(_settings);
 
