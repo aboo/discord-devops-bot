@@ -3,6 +3,7 @@ using Discord.WebSocket;
 
 using DiscordDevOpsBot.Features.PingPonger;
 using DiscordDevOpsBot.Features.PullRequestOrganizer;
+using DiscordDevOpsBot.Interfaces;
 using DiscordDevOpsBot.Models;
 
 namespace DiscordDevOpsBot.Services;
@@ -12,15 +13,16 @@ public sealed class Bot : BackgroundService
   private readonly ILogger<Bot> _logger;
   private readonly Settings _settings;
   private DiscordSocketClient? _client;
-  private readonly PingPonger _pingPonger;
-  private readonly PullRequestOrganizer _pullRequestOrganizer;
+  private readonly List<ISockeMesageProcessor> _processors;
 
   public Bot(ILogger<Bot> logger, Settings settings, PingPonger pingPonger, PullRequestOrganizer pullRequestOrganizer)
   {
+    _processors = new List<ISockeMesageProcessor>();
+
     _logger = logger;
     _settings = settings;
-    _pingPonger = pingPonger;
-    _pullRequestOrganizer = pullRequestOrganizer;
+
+    _processors.AddRange([pingPonger, pullRequestOrganizer]);
   }
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,12 +36,14 @@ public sealed class Bot : BackgroundService
     _client.Log += LogAsync;
     _client.MessageReceived += (message) =>
     {
-      _logger.LogInformation($"{message.Author.Username}: {message.Content}");
+      _logger.LogInformation("{Username}: {Content}", message.Author.Username, message.Content);
       return Task.CompletedTask;
     };
 
-    _client.MessageReceived += _pingPonger.ProcessMessageAsync;
-    _client.MessageReceived += _pullRequestOrganizer.ProcessMessageAsync;
+    foreach (var processor in _processors)
+    {
+      _client.MessageReceived += processor.ProcessMessageAsync;
+    }
 
     await _client.LoginAsync(TokenType.Bot, _settings.TOKEN);
     await _client.StartAsync();
@@ -50,9 +54,23 @@ public sealed class Bot : BackgroundService
     }
   }
 
+  public override void Dispose()
+  {
+    if (_client != null)
+    {
+      foreach (var processor in _processors)
+      {
+        _client.MessageReceived -= processor.ProcessMessageAsync;
+      }
+      _client.Dispose();
+    }
+
+    base.Dispose();
+  }
+
   private Task LogAsync(LogMessage log)
   {
-    _logger.LogInformation(log.Message);
+    _logger.LogInformation("", log.Message);
     return Task.CompletedTask;
   }
 }
