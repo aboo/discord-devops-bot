@@ -6,12 +6,12 @@ using DiscordDevOpsBot.Models;
 
 namespace DiscordDevOpsBot.Features.PullRequestOrganizer;
 
-public class PullRequestOrganizerService : ISockeMesageProcessor
+public class PullRequestOrganizer : ISockeMesageProcessor
 {
   private readonly DiscordSocketClient _client;
   private readonly Settings _settings;
 
-  public PullRequestOrganizerService(DiscordSocketClient client, Settings settings)
+  public PullRequestOrganizer(DiscordSocketClient client, Settings settings)
   {
     _client = client;
     _settings = settings;

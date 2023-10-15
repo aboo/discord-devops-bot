@@ -2,6 +2,7 @@ using Discord;
 using Discord.WebSocket;
 
 using DiscordDevOpsBot.Features.PingPonger;
+using DiscordDevOpsBot.Features.PullRequestOrganizer;
 using DiscordDevOpsBot.Models;
 
 namespace DiscordDevOpsBot.Services;
@@ -12,12 +13,14 @@ public sealed class Bot : BackgroundService
   private readonly Settings _settings;
   private DiscordSocketClient? _client;
   private readonly PingPonger _pingPonger;
+  private readonly PullRequestOrganizer _pullRequestOrganizer;
 
-  public Bot(ILogger<Bot> logger, Settings settings, PingPonger pingPonger)
+  public Bot(ILogger<Bot> logger, Settings settings, PingPonger pingPonger, PullRequestOrganizer pullRequestOrganizer)
   {
     _logger = logger;
     _settings = settings;
     _pingPonger = pingPonger;
+    _pullRequestOrganizer = pullRequestOrganizer;
   }
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -36,6 +39,7 @@ public sealed class Bot : BackgroundService
     };
 
     _client.MessageReceived += _pingPonger.ProcessMessageAsync;
+    _client.MessageReceived += _pullRequestOrganizer.ProcessMessageAsync;
 
     await _client.LoginAsync(TokenType.Bot, _settings.TOKEN);
     await _client.StartAsync();

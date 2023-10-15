@@ -1,4 +1,5 @@
 ﻿using DiscordDevOpsBot.Features.PingPonger;
+using DiscordDevOpsBot.Features.PullRequestOrganizer;
 using DiscordDevOpsBot.Models;
 using DiscordDevOpsBot.Services;
 
@@ -21,6 +22,7 @@ class Program
 
     var builder = Host.CreateApplicationBuilder();
     builder.Services.AddTransient<PingPonger>();
+    builder.Services.AddTransient<PullRequestOrganizer>();
     builder.Services.AddHostedService<Bot>();
     builder.Services.AddSingleton(settings);
 
