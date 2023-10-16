@@ -12,15 +12,16 @@ public sealed class Bot : BackgroundService
 {
   private readonly ILogger<Bot> _logger;
   private readonly Settings _settings;
-  private DiscordSocketClient? _client;
+  private readonly DiscordSocketClient _client;
   private readonly List<ISockeMesageProcessor> _processors;
 
-  public Bot(ILogger<Bot> logger, Settings settings, PingPonger pingPonger, PullRequestOrganizer pullRequestOrganizer)
+  public Bot(DiscordSocketClient client, ILogger<Bot> logger, Settings settings, PingPonger pingPonger, PullRequestOrganizer pullRequestOrganizer)
   {
     _processors = new List<ISockeMesageProcessor>();
 
     _logger = logger;
     _settings = settings;
+    _client = client;
 
     _processors.Add(pingPonger);
     _processors.Add(pullRequestOrganizer);
@@ -28,12 +29,6 @@ public sealed class Bot : BackgroundService
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    _client = new DiscordSocketClient(new DiscordSocketConfig
-    {
-      GatewayIntents = GatewayIntents.MessageContent
-                | GatewayIntents.Guilds
-                | GatewayIntents.GuildMessages
-    });
     _client.Log += LogAsync;
     _client.MessageReceived += (message) =>
     {
